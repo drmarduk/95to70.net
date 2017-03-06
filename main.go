@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -10,6 +11,9 @@ import (
 )
 
 func main() {
+	fs := http.FileServer(http.Dir("./html"))
+	http.Handle("/favico.ico", fs)
+
 	http.HandleFunc("/", errorHandler(indexHandler))
 	http.HandleFunc("/api/add", errorHandler(addHandler))
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -30,10 +34,10 @@ func errorHandler(f func(http.ResponseWriter, *http.Request) error) http.Handler
 	}
 }
 
-func renderIndex(w http.ResponseWriter) (err error) {
+func renderIndex(w http.ResponseWriter, s Summary) (err error) {
 	t := template.New("index")
 	t, err = t.ParseFiles("./html/index.html")
-	print("asdf")
+
 	if err != nil {
 		log.Printf("renderIndex: %v\n", err)
 		return err
@@ -42,11 +46,40 @@ func renderIndex(w http.ResponseWriter) (err error) {
 }
 
 // handler stuff
-func indexHandler(w http.ResponseWriter, r *http.Request) error {
-	return renderIndex(w)
+func indexHandler(w http.ResponseWriter, r *http.Request) (err error) {
+	s := Summary{}
+
+	api := NewWeightAPI()
+
+	s.Current, err = api.Current()
+	if err != nil {
+		s.Err = append(s.Err, err.Error())
+	}
+
+	s.Min, err = api.Min()
+	if err != nil {
+		s.Err = append(s.Err, err.Error())
+	}
+
+	s.Max, err = api.Min()
+	if err != nil {
+		s.Err = append(s.Err, err.Error())
+	}
+
+	s.LastMonth, err = api.Last(30)
+	if err != nil {
+		s.Err = append(s.Err, err.Error())
+	}
+
+	for _, v := range s.Err {
+		log.Println(v)
+	}
+	fmt.Printf("Summary: %v\n\n", s)
+	return renderIndex(w, s)
 }
 
 func addHandler(w http.ResponseWriter, r *http.Request) error {
+	// TODO: add authorization
 	record, err := ParseRecord(r.FormValue("value"))
 	if err != nil {
 		return err
@@ -60,4 +93,13 @@ func addHandler(w http.ResponseWriter, r *http.Request) error {
 
 	http.Redirect(w, r, "/", http.StatusFound)
 	return nil
+}
+
+// Summary holds all info for the frontpage
+type Summary struct {
+	Err       []string
+	Current   Record
+	Min       Record
+	Max       Record
+	LastMonth []Record
 }

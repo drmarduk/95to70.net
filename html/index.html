@@ -4,16 +4,30 @@
     <head>
         <meta charset="utf-8">
 
-        <title>Blabla</title>
+        <title>Fastenmonat</title>
         <meta name="description" content="the ultimate gewichts verlauf">
         <meta name="author" content="drmarduk">
 
     </head>
     <body>
+        {{ range .Err }}
+            <p>{{.}}</p>
+        {{end}}
         <form name="add" method="post" action="/api/add">
             Value: <input type="number" name="value">
-            <button type="submit">Absenden</button> 
+            <button type="submit" value="absenden">Absenden</button>
         </form> 
+
+        <p>Current: {{.Current.Value}}</p>
+        <p>Min: {{.Min.Value}}</p>
+        <p>Max: {{.Max.Value}}</p>
+
+        <ul>
+            {{ range .LastMonth }}
+                <li>{{ .Value }} - {{ .Created }}</li>
+            {{end}}
+        </ul>
+
     </body>
 </html>
 {{end}}
