@@ -1,0 +1,19 @@
+{{define "index"}}
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="utf-8">
+
+        <title>Blabla</title>
+        <meta name="description" content="the ultimate gewichts verlauf">
+        <meta name="author" content="drmarduk">
+
+    </head>
+    <body>
+        <form name="add" method="post" action="/api/add">
+            Value: <input type="number" name="value">
+            <button type="submit">Absenden</button> 
+        </form> 
+    </body>
+</html>
+{{end}}
