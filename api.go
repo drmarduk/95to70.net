@@ -12,8 +12,8 @@ type WeightAPI struct {
 }
 
 // NewWeightAPI returns a new instance
-func NewWeightAPI() *WeightAPI {
-	return &WeightAPI{driver: "sqlite3", db: "test.db"}
+func NewWeightAPI(driver, db string) *WeightAPI {
+	return &WeightAPI{driver: driver, db: db}
 }
 
 // Current returns the last inserted value

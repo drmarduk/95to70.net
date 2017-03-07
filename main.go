@@ -10,7 +10,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+var _driver = "sqlite3"
+var _db = "test.db"
+
 func main() {
+
 	fs := http.FileServer(http.Dir("./html"))
 	http.Handle("/favico.ico", fs)
 
@@ -49,7 +53,7 @@ func renderIndex(w http.ResponseWriter, s Summary) (err error) {
 func indexHandler(w http.ResponseWriter, r *http.Request) (err error) {
 	s := Summary{}
 
-	api := NewWeightAPI()
+	api := NewWeightAPI(_driver, _db)
 
 	s.Current, err = api.Current()
 	if err != nil {
@@ -85,7 +89,8 @@ func addHandler(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	api := NewWeightAPI()
+	api := NewWeightAPI(_driver, _db)
+
 	err = api.Add(record)
 	if err != nil {
 		return err
