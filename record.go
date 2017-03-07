@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -24,6 +25,8 @@ func ParseRecord(value string) (r Record, err error) {
 	if value == "" {
 		return r, errors.New("empty value")
 	}
+	value = strings.Trim(value, " ")
+	value = strings.Replace(value, ",", ".", -1)
 	x, err := strconv.ParseFloat(value, 32)
 	if err != nil {
 		return r, err
