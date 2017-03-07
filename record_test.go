@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"testing"
@@ -32,23 +31,18 @@ func TestParseRecord(t *testing.T) {
 		{"2,3", Record{Value: 2.3}, nil},
 		{" -1", Record{Value: -1.0}, nil},
 		{"abc", Record{}, strconv.ErrSyntax},
-		{"", Record{}, errors.New("empty value")},
+		{"", Record{}, ErrEmptyValue},
 	}
 
 	for _, tt := range tests {
 		got, err := ParseRecord(tt.in)
 
-		if tt.in == "" && err != errors.New("empty value") {
-			t.Errorf("ParseRecord(%s) = '%s', want error '%v'", tt.in, err, errors.New("empty value"))
+		if (tt.err != nil) && err.Error() != tt.err.Error() {
+			t.Errorf("ParseRecord(%s): want %v, got %v\n", tt.in, tt.err, err)
 		}
-		if got == tt.out && err == tt.err {
+		if got.Value == tt.out.Value && err == tt.err {
+			// success
 			continue
-		}
-		if got == tt.out && err != tt.err {
-			t.Errorf("ParseRecord(%s): '%v', want error '%v'", tt.in, err, tt.err)
-		}
-		if got.Value != tt.out.Value {
-			t.Errorf("ParseRecord(%s) = %v, want = %v\n%v\n", tt.in, got.Value, tt.out.Value, err)
 		}
 	}
 }

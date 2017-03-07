@@ -8,6 +8,9 @@ import (
 	"time"
 )
 
+// ErrEmptyValue defines an input error when input is empty
+var ErrEmptyValue = errors.New("empty value")
+
 // Record holds a current weight
 type Record struct {
 	ID      int
@@ -23,13 +26,13 @@ func (r *Record) String() string {
 // and adds the created member
 func ParseRecord(value string) (r Record, err error) {
 	if value == "" {
-		return r, errors.New("empty value")
+		return r, ErrEmptyValue
 	}
 	value = strings.Trim(value, " ")
 	value = strings.Replace(value, ",", ".", -1)
 	x, err := strconv.ParseFloat(value, 32)
 	if err != nil {
-		return r, err
+		return r, strconv.ErrSyntax
 	}
 
 	r.Created = time.Now()
