@@ -20,3 +20,12 @@ func TestCurrent(t *testing.T) {
 	api := NewWeightAPI("sqlite3", ":memory:")
 
 }
+
+/*
+CREATE TABLE `trend` (
+	`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	`created`	INTEGER NOT NULL,
+	`value`	REAL NOT NULL
+);
+
+*/
