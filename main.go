@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -15,11 +14,10 @@ var _db = "test.db"
 
 func main() {
 
-	fs := http.FileServer(http.Dir("./html"))
-	http.Handle("/favico.ico", fs)
-
 	http.HandleFunc("/", errorHandler(indexHandler))
 	http.HandleFunc("/api/add", errorHandler(addHandler))
+	http.HandleFunc("/favicon.ico", http.NotFound)
+	http.Handle("/static/", http.FileServer(http.Dir("./html/")))
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -39,6 +37,7 @@ func errorHandler(f func(http.ResponseWriter, *http.Request) error) http.Handler
 }
 
 func renderIndex(w http.ResponseWriter, s Summary) (err error) {
+	s.Derp = "looooool"
 	t := template.New("index")
 	t, err = t.ParseFiles("./html/index.html")
 
@@ -46,7 +45,7 @@ func renderIndex(w http.ResponseWriter, s Summary) (err error) {
 		log.Printf("renderIndex: %v\n", err)
 		return err
 	}
-	return t.Execute(w, nil)
+	return t.Execute(w, &s)
 }
 
 // handler stuff
@@ -65,7 +64,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) (err error) {
 		s.Err = append(s.Err, err.Error())
 	}
 
-	s.Max, err = api.Min()
+	s.Max, err = api.Max()
 	if err != nil {
 		s.Err = append(s.Err, err.Error())
 	}
@@ -78,7 +77,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) (err error) {
 	for _, v := range s.Err {
 		log.Println(v)
 	}
-	fmt.Printf("Summary: %v\n\n", s)
 	return renderIndex(w, s)
 }
 
@@ -86,6 +84,7 @@ func addHandler(w http.ResponseWriter, r *http.Request) error {
 	// TODO: add authorization
 	record, err := ParseRecord(r.FormValue("value"))
 	if err != nil {
+		log.Printf("API ERROR: add: %v\n", err)
 		return err
 	}
 
@@ -93,6 +92,7 @@ func addHandler(w http.ResponseWriter, r *http.Request) error {
 
 	err = api.Add(record)
 	if err != nil {
+		log.Printf("API ERROR: add: %v\n", err)
 		return err
 	}
 
@@ -107,4 +107,5 @@ type Summary struct {
 	Min       Record
 	Max       Record
 	LastMonth []Record
+	Derp      string
 }
