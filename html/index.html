@@ -1,33 +1,78 @@
 {{define "index"}}
 <!DOCTYPE html>
 <html lang="de">
-    <head>
-        <meta charset="utf-8">
 
-        <title>Fastenmonat</title>
-        <meta name="description" content="the ultimate gewichts verlauf">
-        <meta name="author" content="drmarduk">
+<head>
+    <meta charset="utf-8">
 
-    </head>
-    <body>
-        {{ range .Err }}
-            <p>{{.}}</p>
-        {{end}}
-        <form name="add" method="post" action="/api/add">
-            Value: <input type="number" name="value">
-            <button type="submit" value="absenden">Absenden</button>
-        </form> 
+    <title>Fastenmonat</title>
+    <meta name="description" content="the ultimate gewichts verlauf">
+    <meta name="author" content="drmarduk">
 
-        <p>Current: {{.Current.Value}}</p>
-        <p>Min: {{.Min.Value}}</p>
-        <p>Max: {{.Max.Value}}</p>
+    <link rel="stylesheet" href="/static/normalize.css" />
+    <link rel="stylesheet" href="/static/uikit.css" />
+</head>
 
-        <ul>
-            {{ range .LastMonth }}
-                <li>{{ .Value }} - {{ .Created }}</li>
-            {{end}}
-        </ul>
+<body class="uk-container uk-margin-top">
+    <h1 class="uk-heading-line"><span>Gewichtsverlauf im Fastenmonat</span></h1>
+    <div class="uk-child-width-expand@s uk-text-center uk-grid">
+        <div>
+            <div class="uk-card uk-card-default uk-card-body">
+                <h3 class="uk-card-title">Current</h3>
+                <div>{{.Current.Value}} Kg</div>
+            </div>
+        </div>
+        <div>
+            <div class="uk-card uk-card-default uk-card-body">
+                <h3 class="uk-card-title">Min</h3>
+                <div>{{.Min.Value}} Kg <small>({{.Min.Created.Format "02.01.2006"}})</small></div>
+            </div>
+        </div>
+        <div>
+            <div class="uk-card uk-card-default uk-card-body">
+                <h3 class="uk-card-title">Max</h3>
+                <div>{{.Max.Value}} Kg <small>({{.Max.Created.Format "02.01.2006"}})</small></div>
+            </div>
+        </div>
+    </div>
 
-    </body>
+    <div class="uk-width-1-4 uk-margin-top">
+        <form class="uk-form" method="post" action="/api/add">
+            <div>
+                <label class="uk-form-label">Gewicht</label>
+                <div class="uk-form-controls">
+                    <input class="uk-input" name="value" type="text">
+                </div>
+            </div>
+
+            <div class="uk-margin">
+                <div class="uk-form-custom">
+                    <button class="uk-button uk-button-default" type="submit">Add</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="uk-width-1-2 uk-margin-top">
+        <table class="uk-table">
+            <caption>Gewichtsverlauf der letzten 30 Tage</caption>
+            <thead>
+                <tr>
+                    <th>Datum</th>
+                    <th>Gewicht</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range .LastMonth }}
+                <tr>
+                    <th>{{.Created.Format "02.01.2006"}}</th>
+                    <th>{{ printf "%.1f" .Value}} Kg</th>
+                </tr>
+                {{ end }}
+                <tbody>
+        </table>
+    </div>
+</body>
+
 </html>
 {{end}}
